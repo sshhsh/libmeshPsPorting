@@ -1,0 +1,37 @@
+LIBS = libmeshPsPorting.a
+
+C_FILES = ./test.c
+
+CFLAGS = -Werror \
+	 -Wunused \
+	 -Wuninitialized \
+	 -Wreturn-type \
+	 -Wmissing-prototypes \
+	 -Wmissing-declarations \
+	 -Wunreachable-code \
+
+INCLUDES = -I ./include
+
+ifdef OPENWRT_BUILD
+CFLAGS += -DARCH_BIG_ENDIAN -DOPENWRT_BUILD -fhonour-copts
+endif
+
+CFLAGS+= -DDEBUG_ENABLE
+
+O_FILES = $(patsubst %.c, %.o, $(C_FILES))
+
+all: lib
+
+lib: $(LIBS)
+
+%.o : %.c $(H_FILES)
+	$(CC) $(INCLUDES) $(CFLAGS) -c $<
+
+$(LIBS) : $(O_FILES)
+	$(AR) cr $@ *.o
+
+.PHONY: clean
+
+clean:
+	rm -f $(LIBS)
+	rm -f *.o

@@ -1,0 +1,33 @@
+CFLAGS = -Werror \
+	 -Wunused \
+	 -Wuninitialized \
+	 -Wreturn-type \
+	 -Wmissing-prototypes \
+	 -Wmissing-declarations \
+	 -Wunreachable-code \
+
+ifdef OPENWRT_BUILD
+CFLAGS += -DARCH_BIG_ENDIAN -DOPENWRT_BUILD -fhonour-copts
+endif
+
+CFLAGS+= -DDEBUG_ENABLE
+
+INCLUDES = -I ./include
+
+libmeshPsPorting.a : test.o
+	$(AR) cr libmeshPsPorting.a test.o
+
+test.o : test.c
+	$(CC) $(INCLUDES) $(CFLAGS) -c test.c
+
+main.o : main.c
+	$(CC) $(INCLUDES) $(CFLAGS) -c main.c
+
+libmeshPsPorting: main.o
+	$(CC) $(INCLUDES) $(CFLAGS) -L ./ -llibmeshPsPorting main.o -o libmeshPsPorting
+
+.PHONY: clean
+
+clean:
+	rm -f *.a
+	rm -f *.o
